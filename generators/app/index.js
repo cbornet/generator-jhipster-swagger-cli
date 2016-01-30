@@ -77,7 +77,7 @@ module.exports = yeoman.Base.extend({
   },
 
   writing: {
-    writeTemplates : function () {
+    callSwaggerCodegen : function () {
       var javaDir = jhipsterVar.javaDir;
       var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.1.5.jar');
       var cliPackage = jhipsterVar.packageName + '.client.' + this.cliName;
@@ -91,6 +91,18 @@ module.exports = yeoman.Base.extend({
         ' --invoker-package ' + cliPackage;
       shelljs.exec(execLine);
 
+    },
+
+    writeTemplates: function() {
+      if (jhipsterVar.buildTool === 'maven') {
+        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.1.1');
+        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-jackson', '8.1.1');
+        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-slf4j', '8.1.1');
+      } else if (jhipsterVar.buildTool === 'gradle') {
+        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-core', '8.1.1');
+        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-jackson', '8.1.1');
+        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-slf4j', '8.1.1');
+      }
     }
   },
 
