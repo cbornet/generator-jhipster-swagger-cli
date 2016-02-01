@@ -5,6 +5,9 @@ var packagejs = require(__dirname + '/../../package.json');
 var request = require('sync-request');
 var path = require('path');
 var shelljs = require('shelljs');
+var CodeGen = require('swagger-js-codegen').CodeGen;
+var _ = require('underscore.string');
+
 
 // Stores JHipster variables
 var jhipsterVar = {moduleName: 'swagger-cli'};
@@ -12,9 +15,10 @@ var jhipsterVar = {moduleName: 'swagger-cli'};
 // Stores JHipster functions
 var jhipsterFunc = {};
 
-/*function isURL(str) {
+function isURL(str) {
   return /\b(https?|ftp|file):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|‌​]/.test(str);
-}*/
+}
+
 var apis;
 
 module.exports = yeoman.Base.extend({
@@ -37,6 +41,7 @@ module.exports = yeoman.Base.extend({
     },
     readConfig: function(){
       apis = this.config.get('apis') || {};
+      this.hasBackEnd = false;
     }
   },
 
@@ -84,9 +89,27 @@ module.exports = yeoman.Base.extend({
           },
           type: 'input',
           name: 'cliName',
+          validate: function (input) {
+            if (!/^([a-zA-Z0-9_]*)$/.test(input)) return 'Your API client name cannot contain special characters or a blank space';
+            if (input == '') return 'Your API client name cannot be empty';
+            return true;
+          },
           message: 'What is the unique name for your API client ?',
           default: 'petstore',
           store: true
+        },
+        {
+          when : function(response) {
+            return response.action == 'new' || !hasExistingApis;
+          },
+          type: 'checkbox',
+          name: 'cliTypes',
+          message: 'Select which type of API client to generate',
+          default: ['front'],
+          choices: [
+            {'name': 'front-end client', 'value': 'front'},
+            {'name': 'back-end client', 'value': 'back'},
+          ]
         },
         {
           when : function(response) {
@@ -116,18 +139,6 @@ module.exports = yeoman.Base.extend({
 
       this.prompt(prompts, function (props) {
         this.props = props;
-        this.inputSpec = props.inputSpec;
-        this.cliName = props.cliName;
-        this.saveConfig = props.saveConfig;
-        /*var swagger = "";
-        if (isURL(this.inputSpec)) {
-          var res = request('GET', this.inputSpec);
-          swagger = res.getBody('utf-8');
-        } else {
-          swagger = fs.readFileSync(this.inputSpec, 'utf-8');
-        }
-        this.swagger = JSON.parse(swagger);
-        console.log(this.swagger.info.title.replace(/ /g, ''));*/
 
         done();
       }.bind(this));
@@ -139,7 +150,7 @@ module.exports = yeoman.Base.extend({
     determineApisToGenerate: function() {
       this.apisToGenerate = {};
       if(this.props.action == 'new') {
-        this.apisToGenerate[this.props.cliName] = this.props.inputSpec;
+        this.apisToGenerate[this.props.cliName] = {'spec': this.props.inputSpec, 'cliTypes': this.props.cliTypes};
       } else if (this.props.action == 'all') {
         this.apisToGenerate = apis;
       } else if (this.props.action == 'select') {
@@ -151,7 +162,7 @@ module.exports = yeoman.Base.extend({
 
     saveConfig: function() {
       if (this.props.saveConfig) {
-        apis[this.props.cliName] = this.props.inputSpec;
+        apis[this.props.cliName] = this.apisToGenerate[this.props.cliName];
         this.config.set('apis', apis);
       }
     }
@@ -162,22 +173,43 @@ module.exports = yeoman.Base.extend({
       var javaDir = jhipsterVar.javaDir;
       var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.1.5.jar');
       Object.keys(this.apisToGenerate).forEach( function(cliName) {
-        var inputSpec = this.apisToGenerate[cliName];
-        var cliPackage = jhipsterVar.packageName + '.client.' + cliName;
-
-        var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,FormAwareEncoder.java,StringUtil.java -jar ' + jarPath + ' generate' +
-          ' -l java --library feign ' +
-          ' -i ' + inputSpec +
-          ' -o ' + javaDir +
-          ' --api-package ' + cliPackage + '.api' +
-          ' --model-package ' + cliPackage + '.model' +
-          ' --invoker-package ' + cliPackage;
-        shelljs.exec(execLine);
+        var inputSpec = this.apisToGenerate[cliName].spec;
+        this.apisToGenerate[cliName].cliTypes.forEach( function(cliType) {
+          this.log(chalk.green('Generating ' + cliType + ' end code for ' + cliName + ' (' + inputSpec + ')' ));
+          if (cliType === 'front') {
+            var swagger = "";
+            if (isURL(inputSpec)) {
+              var res = request('GET', inputSpec);
+              swagger = res.getBody('utf-8');
+            } else {
+              swagger = fs.readFileSync(inputSpec, 'utf-8');
+            }
+            swagger = JSON.parse(swagger);
+            var angularjsSourceCode = CodeGen.getAngularCode({ className: _.classify(cliName), swagger: swagger });
+            this.fs.write(jhipsterVar.webappDir + '/scripts/components/api-clients/' + _.dasherize(_.decapitalize(cliName)) + '.js', angularjsSourceCode);
+            jhipsterFunc.addAngularJsModule(_.classify(cliName));
+          }
+          else if (cliType === 'back') {
+            this.hasBackEnd = true;
+            var cliPackage = jhipsterVar.packageName + '.client.' + _.underscored(cliName);
+            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,FormAwareEncoder.java,StringUtil.java -jar ' + jarPath + ' generate' +
+              ' -l java --library feign ' +
+              ' -i ' + inputSpec +
+              ' -o ' + javaDir +
+              ' --api-package ' + cliPackage + '.api' +
+              ' --model-package ' + cliPackage + '.model' +
+              ' --invoker-package ' + cliPackage;
+            shelljs.exec(execLine);
+          }
+        }, this);
       }, this);
 
     },
 
     writeTemplates: function() {
+      if (!this.hasBackEnd) {
+        return;
+      }
       if (jhipsterVar.buildTool === 'maven') {
         jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.1.1');
         jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-jackson', '8.1.1');
@@ -190,11 +222,4 @@ module.exports = yeoman.Base.extend({
     }
   },
 
-  install: function () {
-    //this.installDependencies();
-  },
-
-  end: function () {
-    //this.log('End of swagger-cli generator');
-  }
 });

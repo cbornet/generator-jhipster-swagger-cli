@@ -1,2 +1,0 @@
-hello swagger-cli!
-It's dummy.txt

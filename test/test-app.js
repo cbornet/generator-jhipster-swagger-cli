@@ -26,10 +26,10 @@ describe('JHipster generator swagger-cli', function () {
         .on('end', done);
     });
 
-    it('generate dummy.txt file', function () {
+    /*it('generate dummy.txt file', function () {
       assert.file([
         'dummy.txt'
       ]);
-    });
+    });*/
   });
 });
