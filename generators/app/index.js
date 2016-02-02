@@ -130,7 +130,7 @@ module.exports = yeoman.Base.extend({
           choices: function() {
             var choices = [];
             Object.keys(apis).forEach( function(cliName) {
-              choices.push({ 'name': cliName + ' (' + apis[cliName] + ')', 'value': {'cliName': cliName, 'spec':apis[cliName]} });
+              choices.push({ 'name': cliName + ' (' + apis[cliName].spec + ' - ' + apis[cliName].cliTypes + ')', 'value': {'cliName': cliName, 'spec':apis[cliName]} });
             });
             return choices;
           }
