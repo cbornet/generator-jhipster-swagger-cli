@@ -185,9 +185,12 @@ module.exports = yeoman.Base.extend({
               swagger = fs.readFileSync(inputSpec, 'utf-8');
             }
             swagger = JSON.parse(swagger);
-            var angularjsSourceCode = CodeGen.getAngularCode({ className: _.classify(cliName), swagger: swagger });
-            this.fs.write(jhipsterVar.webappDir + '/scripts/components/api-clients/' + _.dasherize(_.decapitalize(cliName)) + '.js', angularjsSourceCode);
-            jhipsterFunc.addAngularJsModule(_.classify(cliName));
+            var angularjsSourceCode = CodeGen.getAngularCode({ className: _.classify(cliName), swagger: swagger, moduleName: _.camelize(cliName) });
+            var apiScriptFile = 'components/api-clients/' + _.dasherize(_.decapitalize(cliName)) + '.module.js';
+            this.fs.write( jhipsterVar.webappDir + '/scripts/' + apiScriptFile, angularjsSourceCode);
+            jhipsterFunc.addAngularJsModule(_.camelize(cliName));
+            jhipsterFunc.addJavaScriptToIndex(apiScriptFile);
+
           }
           else if (cliType === 'back') {
             this.hasBackEnd = true;
