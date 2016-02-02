@@ -149,7 +149,7 @@ module.exports = yeoman.Base.extend({
   configuring: {
     determineApisToGenerate: function() {
       this.apisToGenerate = {};
-      if(this.props.action == 'new') {
+      if(this.props.action == 'new' || this.props.action == undefined) {
         this.apisToGenerate[this.props.cliName] = {'spec': this.props.inputSpec, 'cliTypes': this.props.cliTypes};
       } else if (this.props.action == 'all') {
         this.apisToGenerate = apis;
