@@ -170,8 +170,7 @@ module.exports = yeoman.Base.extend({
 
   writing: {
     callSwaggerCodegen : function () {
-      var javaDir = jhipsterVar.javaDir;
-      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.1.5.jar');
+      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.1.6-SNAPSHOT.jar');
       Object.keys(this.apisToGenerate).forEach( function(cliName) {
         var inputSpec = this.apisToGenerate[cliName].spec;
         this.apisToGenerate[cliName].cliTypes.forEach( function(cliType) {
@@ -195,10 +194,9 @@ module.exports = yeoman.Base.extend({
           else if (cliType === 'back') {
             this.hasBackEnd = true;
             var cliPackage = jhipsterVar.packageName + '.client.' + _.underscored(cliName);
-            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,FormAwareEncoder.java,StringUtil.java -jar ' + jarPath + ' generate' +
+            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,FormAwareEncoder.java,StringUtil.java,OAuth.java,OAuthFlow.java,ApiKeyAuth.java,HttpBasicAuth.java -jar ' + jarPath + ' generate' +
               ' -l java --library feign ' +
               ' -i ' + inputSpec +
-              ' -o ' + javaDir +
               ' --api-package ' + cliPackage + '.api' +
               ' --model-package ' + cliPackage + '.model' +
               ' --invoker-package ' + cliPackage;
@@ -217,10 +215,12 @@ module.exports = yeoman.Base.extend({
         jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.1.1');
         jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-jackson', '8.1.1');
         jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-slf4j', '8.1.1');
+        jhipsterFunc.addMavenDependency('org.apache.oltu.oauth2', 'org.apache.oltu.oauth2.client', '1.0.1');
       } else if (jhipsterVar.buildTool === 'gradle') {
         jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-core', '8.1.1');
         jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-jackson', '8.1.1');
         jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-slf4j', '8.1.1');
+        jhipsterFunc.addGradleDependency('compile', 'org.apache.oltu.oauth2', 'org.apache.oltu.oauth2.client', '1.0.1');
       }
     }
   },
