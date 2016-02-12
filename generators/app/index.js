@@ -8,7 +8,6 @@ var shelljs = require('shelljs');
 var CodeGen = require('swagger-js-codegen').CodeGen;
 var _ = require('underscore.string');
 
-
 // Stores JHipster variables
 var jhipsterVar = {moduleName: 'swagger-cli'};
 
@@ -37,7 +36,8 @@ module.exports = yeoman.Base.extend({
     },
     displayLogo: function () {
       // Have Yeoman greet the user.
-      this.log('Welcome to the ' + chalk.red('JHipster swagger-cli') + ' generator! ' + chalk.yellow('v' + packagejs.version + '\n'));
+      this.log('Welcome to the ' + chalk.red('JHipster swagger-cli') + ' generator! ' +
+        chalk.yellow('v' + packagejs.version + '\n'));
     },
     readConfig: function(){
       apis = this.config.get('apis') || {};
@@ -50,7 +50,57 @@ module.exports = yeoman.Base.extend({
       var done = this.async();
       var hasExistingApis = (Object.keys(apis).length !== 0);
 
+      try {
+        //Check if there is a registry running
+        var res = request('GET', 'http://localhost:8761/health');
+        if(JSON.parse(res.getBody()).status === "UP") {
+
+          this.log(chalk.yellow('JHipster registry') + ' detected on localhost:8761.');
+
+          var swaggerResources = request('GET', 'http://localhost:8080/swagger-resources', {
+            //This header is needed to use the custom /swagger-resources controller
+            // and not the default one that has only the gateway's swagger resource
+            headers: {Accept: "application/json, text/javascript;"}
+          });
+          var availableDocs = [];
+          JSON.parse(swaggerResources.getBody()).forEach(function (swaggerResource) {
+            availableDocs.push({
+              value: "http://localhost:8080" + swaggerResource.location,
+              name: swaggerResource.name + ' (' + swaggerResource.location + ')'
+            });
+          });
+
+          this.log('The following swagger-docs have been found :');
+          availableDocs.forEach(function (doc) {
+            this.log('* ' + chalk.green(doc.name) + " : " + doc.value);
+          }.bind(this));
+
+          //If all the previous requests didn't fail, we set the flag
+          var isMicroserviceConfig = true;
+        }
+      } catch(err){
+        var isMicroserviceConfig = false;
+      }
+
       var prompts = [
+        {
+          when : function() {
+            return isMicroserviceConfig;
+          },
+          type: 'confirm',
+          name: 'useRegistry',
+          message: 'Do you want to use one of these swagger-docs ?',
+          default: true
+        },
+        {
+          when : function(response) {
+            return response.useRegistry;
+          },
+          type: 'list',
+          name: 'inputSpec',
+          message: 'Select the doc for which you want to create a client ?',
+          choices: availableDocs
+        },
         {
           when: function() {
             return hasExistingApis;
@@ -75,7 +125,7 @@ module.exports = yeoman.Base.extend({
         },
         {
           when : function(response) {
-            return response.action == 'new' || !hasExistingApis;
+            return (response.action == 'new' || !hasExistingApis) && response.inputSpec == undefined;
           },
           type: 'input',
           name: 'inputSpec',
