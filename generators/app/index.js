@@ -203,7 +203,8 @@ module.exports = yeoman.Base.extend({
               ' --artifact-id ' + _.camelize(cliName) +
               ' --api-package ' + this.cliPackage + '.api' +
               ' --model-package ' + this.cliPackage + '.model' +
-              ' --invoker-package ' + this.cliPackage;
+              ' --invoker-package ' + this.cliPackage +
+              ' --additional-properties dateLibrary=java8';
             shelljs.exec(execLine);
             this.template('src/main/java/package/client/_ApiClientProperties.java', jhipsterVar.javaDir + '/client/' +  _.underscored(cliName) + '/ApiClientProperties.java', this, {});
           }
