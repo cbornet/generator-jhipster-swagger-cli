@@ -254,7 +254,7 @@ module.exports = yeoman.Base.extend({
               ' --api-package ' + this.cliPackage + '.api' +
               ' --model-package ' + this.cliPackage + '.model' +
               ' --invoker-package ' + this.cliPackage +
-              ' --additional-properties dateLibrary=java8';
+              ' --type-mappings DateTime=ZonedDateTime,Date=LocalDate --import-mappings ZonedDateTime=java.time.ZonedDateTime,LocalDate=java.time.LocalDate';
             shelljs.exec(execLine);
             this.template('src/main/java/package/client/_ApiClientProperties.java', jhipsterVar.javaDir + '/client/' +  _.underscored(cliName) + '/ApiClientProperties.java', this, {});
           }
