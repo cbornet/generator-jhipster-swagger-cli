@@ -21,7 +21,7 @@ import {{invokerPackage}}.api.*;
 import {{invokerPackage}}.auth.*;
 import {{invokerPackage}}.auth.OAuth.AccessTokenListener;
 
-@Configuration
+@Configuration(value = "{{artifactId}}ApiClientConfiguration")
 public class ApiClient {
     public interface Api {}
 
@@ -42,7 +42,7 @@ public class ApiClient {
     }
     {{#apiInfo}}{{#apis}}
     @Bean
-    public {{classname}} {{classVarName}}Api() {
+    public {{classname}} {{artifactId}}{{classname}}() {
         return {{artifactId}}ApiClient().buildClient({{classname}}.class);
     }
     {{/apis}}{{/apiInfo}}
