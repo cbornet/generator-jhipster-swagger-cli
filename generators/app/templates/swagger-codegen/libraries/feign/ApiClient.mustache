@@ -23,9 +23,8 @@ import {{invokerPackage}}.auth.OAuth.AccessTokenListener;
 
 @Configuration(value = "{{artifactId}}ApiClientConfiguration")
 public class ApiClient {
-    public interface Api {}
 
-    private final static Logger log = LoggerFactory.getLogger(ApiClient.class);
+    private static final Logger log = LoggerFactory.getLogger(ApiClient.class);
 
     @Autowired
     private Encoder feignEncoder;
@@ -87,6 +86,12 @@ public class ApiClient {
 
     public static class FeignApiClient {
 
+        public static class FeignApiClientException extends RuntimeException {
+            public FeignApiClientException(String string) {
+                super(string);
+            }
+        }
+
         private String basePath = "{{basePath}}";
         private Map<String, RequestInterceptor> apiAuthorizations;
         private Feign.Builder feignBuilder;
@@ -136,7 +141,7 @@ public class ApiClient {
         * XYZApi api = apiClient.buildClient(XYZApi.class);
         * XYZResponse response = api.someMethod(...);
         */
-        public <T extends Api> T buildClient(Class<T> clientClass) {
+        public <T> T buildClient(Class<T> clientClass) {
             return feignBuilder.target(clientClass, basePath);
         }
 
@@ -152,7 +157,7 @@ public class ApiClient {
                     return ;
                 }
             }
-            throw new RuntimeException("No API key authentication configured!");
+            throw new FeignApiClientException("No API key authentication configured!");
         }
 
         /**
@@ -173,7 +178,7 @@ public class ApiClient {
                     return;
                 }
             }
-            throw new RuntimeException("No Basic authentication or OAuth configured!");
+            throw new FeignApiClientException("No Basic authentication or OAuth configured!");
         }
 
         /**
@@ -266,7 +271,7 @@ public class ApiClient {
         */
         public void addAuthorization(String authName, RequestInterceptor authorization) {
             if (apiAuthorizations.containsKey(authName)) {
-                throw new RuntimeException("auth name \"" + authName + "\" already in api authorizations");
+                throw new FeignApiClientException("auth name \"" + authName + "\" already in api authorizations");
             }
             apiAuthorizations.put(authName, authorization);
             feignBuilder.requestInterceptor(authorization);

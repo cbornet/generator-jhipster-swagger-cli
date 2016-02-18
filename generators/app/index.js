@@ -246,7 +246,7 @@ module.exports = yeoman.Base.extend({
           else if (cliType === 'back') {
             this.hasBackEnd = true;
             this.cliPackage = jhipsterVar.packageName + '.client.' + _.underscored(cliName);
-            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,StringUtil.java,OAuth.java,OAuthFlow.java,ApiKeyAuth.java,HttpBasicAuth.java -jar ' + jarPath + ' generate' +
+            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,OAuth.java,OAuthFlow.java,ApiKeyAuth.java,HttpBasicAuth.java -jar ' + jarPath + ' generate' +
               ' -t ' + path.resolve(__dirname, 'templates/swagger-codegen') +
               ' -l java --library feign ' +
               ' -i ' + inputSpec +

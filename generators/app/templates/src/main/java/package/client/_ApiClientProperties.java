@@ -1,5 +1,8 @@
 package <%=cliPackage%>;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ApiClientProperties {
 
     private String url = null;
@@ -14,7 +17,7 @@ public class ApiClientProperties {
 
     private String password = null;
 
-    private String[] scopes = new String[]{};
+    private List<String> scopes = new ArrayList<String>();
 
     public String getUrl() {
         return url;
@@ -64,11 +67,11 @@ public class ApiClientProperties {
         this.password = password;
     }
 
-    public String[] getScopes() {
+    public List<String> getScopes() {
         return scopes;
     }
 
-    public void setScopes(String[] scopes) {
+    public void setScopes(List<String> scopes) {
         this.scopes = scopes;
     }
 }
