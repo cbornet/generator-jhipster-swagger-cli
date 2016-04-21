@@ -291,7 +291,7 @@ module.exports = yeoman.Base.extend({
 
   install: function () {
     if (!this.isJHipsterV2) {
-        this.spawnCommand('gulp', ['install']);
+        this.spawnCommand('gulp', ['inject']);
     }
   }
 
