@@ -286,4 +286,10 @@ module.exports = yeoman.Base.extend({
     }
   },
 
+  install: function () {
+    if (jhipsterVar['addJavaScriptToIndex'] === undefined ) {
+        this.spawnCommand('gulp', ['install']);
+    }
+  }
+
 });
