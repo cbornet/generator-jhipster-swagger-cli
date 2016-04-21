@@ -26,6 +26,11 @@ To update this module:
 npm update -g generator-jhipster-swagger-cli
 ```
 
+Note: this module is no longer compatible with JHipster 2.x. If you have JHipster 2.x, you can use the version 0.5.x of this module
+```bash
+npm install -g generator-jhipster-swagger-cli@0.5.0
+```
+
 # Usage
 Run:
 ```bash
@@ -58,7 +63,7 @@ client:
         client-secret: myClientSecret
         username: myUsername
         password: myPassword
-        scopes: 
+        scopes:
         - read
         - write
 ```
@@ -90,4 +95,3 @@ Apache-2.0 © [Christophe Bornet]
 [travis-url]: https://travis-ci.org/cbornet/generator-jhipster-swagger-cli
 [daviddm-image]: https://david-dm.org/cbornet/generator-jhipster-swagger-cli.svg?theme=shields.io
 [daviddm-url]: https://david-dm.org/cbornet/generator-jhipster-module
-
