@@ -26,11 +26,6 @@ To update this module:
 npm update -g generator-jhipster-swagger-cli
 ```
 
-Note: this module is no longer compatible with JHipster 2.x. If you have JHipster 2.x, you can use the version 0.5.x of this module
-```bash
-npm install -g generator-jhipster-swagger-cli@0.5.4
-```
-
 # Usage
 Run:
 ```bash

@@ -237,7 +237,15 @@ module.exports = yeoman.Base.extend({
             }
             swagger = JSON.parse(swagger);
             var angularjsSourceCode = CodeGen.getAngularCode({ className: _.classify(cliName), swagger: swagger, moduleName: _.camelize(cliName) });
-            this.fs.write( jhipsterVar.webappDir + '/app/components/api-clients/' + _.dasherize(_.decapitalize(cliName)) + '.module.js', angularjsSourceCode);
+            var apiScriptFile = 'components/api-clients/' + _.dasherize(_.decapitalize(cliName)) + '.module.js';
+
+            //Determine if jhipster version is 2.x or 3.x
+            if (jhipsterVar['addJavaScriptToIndex'] === undefined ) {
+                this.fs.write( jhipsterVar.webappDir + '/app/' + apiScriptFile, angularjsSourceCode);
+            } else {
+                this.fs.write( jhipsterVar.webappDir + '/scripts/' + apiScriptFile, angularjsSourceCode);
+                jhipsterFunc.addJavaScriptToIndex(apiScriptFile);
+            }
             jhipsterFunc.addAngularJsModule(_.camelize(cliName));
           }
           else if (cliType === 'back') {
