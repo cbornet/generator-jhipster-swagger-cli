@@ -2,6 +2,7 @@
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var packagejs = require(__dirname + '/../../package.json');
+var semver = require('semver');
 var request = require('sync-request');
 var path = require('path');
 var shelljs = require('shelljs');
@@ -42,6 +43,8 @@ module.exports = yeoman.Base.extend({
     readConfig: function(){
       apis = this.config.get('apis') || {};
       this.hasBackEnd = false;
+      var jhipsterVersion = this.fs.readJSON('.yo-rc.json')['generator-jhipster'].jhipsterVersion;
+      this.isJHipsterV2 = (!jhipsterVersion || semver.lt(jhipsterVersion, '3.0.0'));
     }
   },
 
@@ -240,7 +243,7 @@ module.exports = yeoman.Base.extend({
             var apiScriptFile = 'components/api-clients/' + _.dasherize(_.decapitalize(cliName)) + '.module.js';
 
             //Determine if jhipster version is 2.x or 3.x
-            if (jhipsterVar['addJavaScriptToIndex'] === undefined ) {
+            if (!this.isJHipsterV2) {
                 this.fs.write( jhipsterVar.webappDir + '/app/' + apiScriptFile, angularjsSourceCode);
             } else {
                 this.fs.write( jhipsterVar.webappDir + '/scripts/' + apiScriptFile, angularjsSourceCode);
@@ -287,7 +290,7 @@ module.exports = yeoman.Base.extend({
   },
 
   install: function () {
-    if (jhipsterVar['addJavaScriptToIndex'] === undefined ) {
+    if (!this.isJHipsterV2) {
         this.spawnCommand('gulp', ['install']);
     }
   }
