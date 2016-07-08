@@ -36,44 +36,30 @@ You have the possibility to store a client configuration for future regeneration
 
 ## Use the generated back-end Feign code
 ### ApiClient configuration
-The simplest way to use the client is to create a <client_name>ApiClientProperties bean and configure it in a configuration component. This bean will then be used to autoconfigure an ApiClient and Api beans that you can then inject in your services. You can even use the ConfigurationProperties to configure it directly from your application.yml.
-Eg:
-```java
-@Configuration
-public class ApiClientsConfiguration {
-    @Bean
-    @ConfigurationProperties(prefix = "client.petstore")
-    ApiClientProperties petstoreApiClientProperties() {
-        return new ApiClientProperties();
-    }
-}
-```
-then in application.yml:
+In application.yml:
 ```yaml
-client:
-    petstore:
-        url: http://petstore.swagger.io/v2
-        token-url: http://petstore.swagger.io/oauth2/token
-        client-id: myClientId
-        client-secret: myClientSecret
-        username: myUsername
-        password: myPassword
-        scopes:
-        - read
-        - write
+petstore:
+    url: http://petstore.swagger.io/v2  #url from spec by default
+    security:
+        passwordOauth:
+            access-token-uri: http://petstore.swagger.io/oauth2/token
+            client-id: myClientId
+            client-secret: myClientSecret
+            username: myUsername
+            password: myPassword
+            scopes:
+            - read
+            - write
 ```
-Based on the non NULL fields in ApiClientProperties, the ApiClient will be configured with either no auth, Basic auth (username/password), Credentials flow Oauth (token-url, client-id/client-secret) or Password flow OAuth (token-url, client-id/client-secret, username/password).
-
-You can also create your own ApiClient and Api beans by mimicking the code done in ApiClient.java
 
 ### Calling API methods
 For instance if you generated the [petstore](http://petstore.swagger.io) API, you can call the addPet method like this
 ```java
 @Inject
-private PetApi petApi;
+private PetApiClient petApiClient;
 ...
 Pet myPet = new Pet();
-petApi.addPet(myPet);
+petApiClient.addPet(myPet);
 ```
 
 ## Use the generated front-end AngularJS code
