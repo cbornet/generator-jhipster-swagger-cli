@@ -225,7 +225,7 @@ module.exports = yeoman.Base.extend({
   writing: {
     callSwaggerCodegen : function () {
       this.packageName = jhipsterVar.packageName;
-      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.1.6-SNAPSHOT.jar');
+      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.2.0-SNAPSHOT.jar');
       Object.keys(this.apisToGenerate).forEach( function(cliName) {
         var inputSpec = this.apisToGenerate[cliName].spec;
         this.apisToGenerate[cliName].cliTypes.forEach( function(cliType) {
@@ -254,17 +254,15 @@ module.exports = yeoman.Base.extend({
           else if (cliType === 'back') {
             this.hasBackEnd = true;
             this.cliPackage = jhipsterVar.packageName + '.client.' + _.underscored(cliName);
-            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiClient.java,OAuth.java,OAuthFlow.java,ApiKeyAuth.java,HttpBasicAuth.java -jar ' + jarPath + ' generate' +
-              ' -t ' + path.resolve(__dirname, 'templates/swagger-codegen') +
-              ' -l java --library feign ' +
+            var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiKeyRequestInterceptor.java,ClientConfiguration.java -jar ' + jarPath + ' generate' +
+              ' -l spring --library spring-cloud ' +
               ' -i ' + inputSpec +
               ' --artifact-id ' + _.camelize(cliName) +
               ' --api-package ' + this.cliPackage + '.api' +
               ' --model-package ' + this.cliPackage + '.model' +
-              ' --invoker-package ' + this.cliPackage +
-              ' --type-mappings DateTime=ZonedDateTime,Date=LocalDate --import-mappings ZonedDateTime=java.time.ZonedDateTime,LocalDate=java.time.LocalDate';
+              ' --type-mappings DateTime=ZonedDateTime,Date=LocalDate --import-mappings ZonedDateTime=java.time.ZonedDateTime,LocalDate=java.time.LocalDate' +
+              ' -DconfigPackage=' + this.cliPackage + ',title=' + _.camelize(cliName);
             shelljs.exec(execLine);
-            this.template('src/main/java/package/client/_ApiClientProperties.java', jhipsterVar.javaDir + '/client/' +  _.underscored(cliName) + '/ApiClientProperties.java', this, {});
           }
         }, this);
       }, this);
@@ -276,15 +274,11 @@ module.exports = yeoman.Base.extend({
         return;
       }
       if (jhipsterVar.buildTool === 'maven') {
-        jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-netflix-core', '1.0.6.RELEASE');
-        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.14.3');
-        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-slf4j', '8.14.3');
-        jhipsterFunc.addMavenDependency('org.apache.oltu.oauth2', 'org.apache.oltu.oauth2.client', '1.0.1');
+        jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign', '1.1.3.RELEASE');
+        jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
       } else if (jhipsterVar.buildTool === 'gradle') {
-        jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-netflix-core', '1.0.6.RELEASE');
-        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-core', '8.14.3');
-        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-slf4j', '8.14.3');
-        jhipsterFunc.addGradleDependency('compile', 'org.apache.oltu.oauth2', 'org.apache.oltu.oauth2.client', '1.0.1');
+        jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-feign', '1.1.3.RELEASE');
+        jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
       }
     }
   },
