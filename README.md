@@ -39,9 +39,9 @@ You have the possibility to store a client configuration for future regeneration
 ## Use the generated back-end Spring-Cloud FeignClient code
 ### Client configuration
 You can configure the generated FeignClients directly from the application.yml.
-RequestInterceptor beans are generated from the swagger securityDefinitions and are only activated if relevant properties are set. If the swagger spec doesn't contain the securityDefinitions, then you will need to configure the clients by yourself (see [spring-cloud doc](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) for details.
+RequestInterceptor beans are generated from the swagger securityDefinitions and are only activated if relevant properties are set. If the swagger spec doesn't contain the securityDefinitions, then you will need to configure the clients by yourself (see [spring-cloud doc](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) for details.)
 #### Configuring basic auth
-The basic auth RequestInterceptor is activated if ```<clientName>.security.<securityName>.username``` is set 
+The basic auth RequestInterceptor is activated if ```<clientName>.security.<securityName>.username``` is set.
 ```yaml
 petstore:
     security:
@@ -50,7 +50,7 @@ petstore:
             password: admin
 ```
 #### Configuring API key auth
-The API key RequestInterceptor is activated if ```<clientName>.security.<securityName>.key``` is set 
+The API key RequestInterceptor is activated if ```<clientName>.security.<securityName>.key``` is set.
 ```yaml
 petstore:
     security:
@@ -58,7 +58,7 @@ petstore:
             key: 12345
 ```
 #### Configuring OAuth2
-The OAuth2 RequestInterceptor is activated if ```<clientName>.security.<securityName>.key``` is set. For details on configuring OAuth2, see the [spring-security-oauth2 doc](http://projects.spring.io/spring-security-oauth/docs/oauth2.html#protected-resource-configuration)
+The OAuth2 RequestInterceptor is activated if ```<clientName>.security.<securityName>.key``` is set. For details on configuring OAuth2, see the [spring-security-oauth2 doc](http://projects.spring.io/spring-security-oauth/docs/oauth2.html#protected-resource-configuration).
 ```yaml
 petstore:
     security:
@@ -72,7 +72,7 @@ petstore:
             - write
 ```
 #### Configuring the remote URL
-The remote URL will default to the one from the swagger spec but can be changed with the ```<clientName>.url``` property
+The remote URL will default to the one from the swagger spec but can be changed with the ```<clientName>.url``` property.
 ```yaml
 petstore:
     url: http://petstore-uat.swagger.io/v2
@@ -90,7 +90,7 @@ petstore:
 If the generated clients don't fit your needs because you want to use Hystrix fallbacks, change the Ribbon context path or use different Feign client configuration, then simply create your own FeignClient beans extending the generated xxxApi classes.
 
 ### Calling API methods
-For instance if you generated the [petstore](http://petstore.swagger.io) API, you can call the addPet method like this
+For instance if you generated the [petstore](http://petstore.swagger.io) API, you can call the addPet method like this:
 ```java
 @Inject
 private PetApiClient petApiClient;
@@ -100,7 +100,7 @@ petApiClient.addPet(myPet);
 ```
 
 ## Use the generated front-end AngularJS code
-The code is generated as a service inside a module. Then you can use it directly but if the remote API is not your JHipster API you will probably need to modify the auth interceptor so that it puts different Authorization/CSRF headers for these requests (see #5)
+The code is generated as a service inside a module. Then you can use it directly but if the remote API is not your JHipster API you will probably need to modify the auth interceptor so that it puts different Authorization/CSRF headers for these requests (see #5).
 
 
 # License
