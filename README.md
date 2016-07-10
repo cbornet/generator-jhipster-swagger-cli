@@ -1,6 +1,6 @@
 # generator-jhipster-swagger-cli
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> JHipster module, JHipster module to generate swagger client code from a swagger definition
+> JHipster module to generate swagger client code from a swagger definition
 
 # Introduction
 
