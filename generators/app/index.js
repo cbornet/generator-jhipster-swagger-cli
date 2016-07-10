@@ -255,13 +255,14 @@ module.exports = yeoman.Base.extend({
             this.hasBackEnd = true;
             this.cliPackage = jhipsterVar.packageName + '.client.' + _.underscored(cliName);
             var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiKeyRequestInterceptor.java,ClientConfiguration.java -jar ' + jarPath + ' generate' +
+              ' -t ' + path.resolve(__dirname, 'templates/swagger-codegen/libraries/spring-cloud') +
               ' -l spring --library spring-cloud ' +
               ' -i ' + inputSpec +
               ' --artifact-id ' + _.camelize(cliName) +
               ' --api-package ' + this.cliPackage + '.api' +
               ' --model-package ' + this.cliPackage + '.model' +
               ' --type-mappings DateTime=ZonedDateTime,Date=LocalDate --import-mappings ZonedDateTime=java.time.ZonedDateTime,LocalDate=java.time.LocalDate' +
-              ' -DconfigPackage=' + this.cliPackage + ',title=' + _.camelize(cliName);
+              ' -DbasePackage=' + jhipsterVar.packageName + '.client,configPackage=' + this.cliPackage + ',title=' + _.camelize(cliName);
             shelljs.exec(execLine);
           }
         }, this);
@@ -273,13 +274,27 @@ module.exports = yeoman.Base.extend({
       if (!this.hasBackEnd) {
         return;
       }
+      //TODO: get the applicationType to handle the dependencies differently in microservices
       if (jhipsterVar.buildTool === 'maven') {
-        jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign', '1.1.3.RELEASE');
+        jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter', '1.1.1.RELEASE');
+        jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-netflix-core', '1.1.3.RELEASE');
+        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.16.2');
+        jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-slf4j', '8.16.2');
         jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
       } else if (jhipsterVar.buildTool === 'gradle') {
-        jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-feign', '1.1.3.RELEASE');
+        jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter', '1.1.1.RELEASE');
+        jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-netflix-core', '1.1.3.RELEASE');
+        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-core', '8.16.2');
+        jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-slf4j', '8.16.2');
         jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
       }
+      var mainClassFile = jhipsterVar.javaDir + jhipsterVar.mainClassName +'.java';
+      var newComponentScan = '@ComponentScan( excludeFilters = {\n' +
+        '    @ComponentScan.Filter(' + jhipsterVar.packageName + '.client.ExcludeFromComponentScan.class)\n' +
+        '})\n' +
+        '@org.springframework.cloud.netflix.feign.EnableFeignClients\n';
+      jhipsterFunc.replaceContent(mainClassFile, '@ComponentScan\n', newComponentScan);
+      this.template('src/main/java/package/client/_ExcludeFromComponentScan.java', jhipsterVar.javaDir + '/client/ExcludeFromComponentScan.java', this, {});
     }
   },
 
