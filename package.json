@@ -1,6 +1,6 @@
 {
   "name": "generator-jhipster-swagger-cli",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "JHipster module to generate swagger client code from a swagger definition",
   "keywords": [
     "yeoman-generator",
