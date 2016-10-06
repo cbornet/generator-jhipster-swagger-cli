@@ -10,7 +10,7 @@ var CodeGen = require('swagger-js-codegen').CodeGen;
 var _ = require('underscore.string');
 
 // Stores JHipster variables
-var jhipsterVar = {moduleName: 'swagger-cli'};
+var jhipsterVar = { moduleName: 'swagger-cli' };
 
 // Stores JHipster functions
 var jhipsterFunc = {};
@@ -24,7 +24,7 @@ var apis;
 module.exports = yeoman.Base.extend({
 
   initializing: {
-    compose: function (args) {
+    compose: function () {
       this.composeWith('jhipster:modules',
         {
           options: {
@@ -32,7 +32,7 @@ module.exports = yeoman.Base.extend({
             jhipsterFunc: jhipsterFunc
           }
         },
-        this.options.testmode ? {local: require.resolve('generator-jhipster/modules')} : null
+        this.options.testmode ? { local: require.resolve('generator-jhipster/modules') } : null
       );
     },
     displayLogo: function () {
@@ -40,54 +40,54 @@ module.exports = yeoman.Base.extend({
       this.log('Welcome to the ' + chalk.red('JHipster swagger-cli') + ' generator! ' +
         chalk.yellow('v' + packagejs.version + '\n'));
     },
-    readConfig: function(){
+    readConfig: function () {
       apis = this.config.get('apis') || {};
       this.hasBackEnd = false;
       var jhipsterVersion = this.fs.readJSON('.yo-rc.json')['generator-jhipster'].jhipsterVersion;
-      this.isJHipsterV2 = (!jhipsterVersion || semver.lt(jhipsterVersion, '3.0.0'));
+      this.isJHipsterV2 = !jhipsterVersion || semver.lt(jhipsterVersion, '3.0.0');
     }
   },
 
   prompting: {
-    askForInputSpec: function() {
+    askForInputSpec: function () {
       var done = this.async();
-      var hasExistingApis = (Object.keys(apis).length !== 0);
+      var hasExistingApis = Object.keys(apis).length !== 0;
 
       try {
         //Check if there is a registry running
         var res = request('GET', 'http://localhost:8761/health');
-        if(JSON.parse(res.getBody()).status === "UP") {
+        if (JSON.parse(res.getBody()).status === 'UP') {
 
           this.log(chalk.yellow('JHipster registry') + ' detected on localhost:8761.');
 
           var swaggerResources = request('GET', 'http://localhost:8080/swagger-resources', {
             //This header is needed to use the custom /swagger-resources controller
             // and not the default one that has only the gateway's swagger resource
-            headers: {Accept: "application/json, text/javascript;"}
+            headers: { Accept: 'application/json, text/javascript;' }
           });
           var availableDocs = [];
           JSON.parse(swaggerResources.getBody()).forEach(function (swaggerResource) {
             availableDocs.push({
-              value: "http://localhost:8080" + swaggerResource.location,
+              value: 'http://localhost:8080' + swaggerResource.location,
               name: swaggerResource.name + ' (' + swaggerResource.location + ')'
             });
           });
 
           this.log('The following swagger-docs have been found :');
           availableDocs.forEach(function (doc) {
-            this.log('* ' + chalk.green(doc.name) + " : " + doc.value);
+            this.log('* ' + chalk.green(doc.name) + ' : ' + doc.value);
           }.bind(this));
 
           //If all the previous requests didn't fail, we set the flag
           var isMicroserviceConfig = true;
         }
-      } catch(err){
-        var isMicroserviceConfig = false;
+      } catch (err) {
+        isMicroserviceConfig = false;
       }
 
       var prompts = [
         {
-          when : function() {
+          when: function () {
             return isMicroserviceConfig;
           },
           type: 'confirm',
@@ -96,7 +96,7 @@ module.exports = yeoman.Base.extend({
           default: true
         },
         {
-          when : function(response) {
+          when: function (response) {
             return response.useRegistry;
           },
           type: 'list',
@@ -105,7 +105,7 @@ module.exports = yeoman.Base.extend({
           choices: availableDocs
         },
         {
-          when: function() {
+          when: function () {
             return hasExistingApis;
           },
           type: 'list',
@@ -127,8 +127,8 @@ module.exports = yeoman.Base.extend({
           ]
         },
         {
-          when : function(response) {
-            return (response.action == 'new' || !hasExistingApis) && response.inputSpec == undefined;
+          when: function (response) {
+            return (response.action === 'new' || !hasExistingApis) && response.inputSpec === undefined;
           },
           type: 'input',
           name: 'inputSpec',
@@ -137,14 +137,18 @@ module.exports = yeoman.Base.extend({
           store: true
         },
         {
-          when : function(response) {
-            return response.action == 'new' || !hasExistingApis;
+          when: function (response) {
+            return response.action === 'new' || !hasExistingApis;
           },
           type: 'input',
           name: 'cliName',
           validate: function (input) {
-            if (!/^([a-zA-Z0-9_]*)$/.test(input)) return 'Your API client name cannot contain special characters or a blank space';
-            if (input == '') return 'Your API client name cannot be empty';
+            if (!/^([a-zA-Z0-9_]*)$/.test(input)) {
+              return 'Your API client name cannot contain special characters or a blank space';
+            }
+            if (input === '') {
+              return 'Your API client name cannot be empty';
+            }
             return true;
           },
           message: 'What is the unique name for your API client ?',
@@ -152,8 +156,8 @@ module.exports = yeoman.Base.extend({
           store: true
         },
         {
-          when : function(response) {
-            return response.action == 'new' || !hasExistingApis;
+          when: function (response) {
+            return response.action === 'new' || !hasExistingApis;
           },
           type: 'checkbox',
           name: 'cliTypes',
@@ -161,13 +165,13 @@ module.exports = yeoman.Base.extend({
           default: ['front'],
           store: true,
           choices: [
-            {'name': 'front-end client', 'value': 'front'},
-            {'name': 'back-end client', 'value': 'back'},
+            { name: 'front-end client', value: 'front' },
+            { name: 'back-end client', value: 'back' }
           ]
         },
         {
-          when : function(response) {
-            return response.action == 'new' || !hasExistingApis;
+          when: function (response) {
+            return response.action === 'new' || !hasExistingApis;
           },
           type: 'confirm',
           name: 'saveConfig',
@@ -175,16 +179,16 @@ module.exports = yeoman.Base.extend({
           default: false
         },
         {
-          when : function(response) {
-            return response.action == 'select';
+          when: function (response) {
+            return response.action === 'select';
           },
           type: 'checkbox',
           name: 'selected',
           message: 'Select which APIs you want to generate',
-          choices: function() {
+          choices: function () {
             var choices = [];
-            Object.keys(apis).forEach( function(cliName) {
-              choices.push({ 'name': cliName + ' (' + apis[cliName].spec + ' - ' + apis[cliName].cliTypes + ')', 'value': {'cliName': cliName, 'spec':apis[cliName]} });
+            Object.keys(apis).forEach(function (cliName) {
+              choices.push({ name: cliName + ' (' + apis[cliName].spec + ' - ' + apis[cliName].cliTypes + ')', value: { cliName: cliName, spec: apis[cliName] } });
             });
             return choices;
           }
@@ -201,20 +205,20 @@ module.exports = yeoman.Base.extend({
   },
 
   configuring: {
-    determineApisToGenerate: function() {
+    determineApisToGenerate: function () {
       this.apisToGenerate = {};
-      if(this.props.action == 'new' || this.props.action == undefined) {
-        this.apisToGenerate[this.props.cliName] = {'spec': this.props.inputSpec, 'cliTypes': this.props.cliTypes};
-      } else if (this.props.action == 'all') {
+      if (this.props.action === 'new' || this.props.action === undefined) {
+        this.apisToGenerate[this.props.cliName] = { spec: this.props.inputSpec, cliTypes: this.props.cliTypes };
+      } else if (this.props.action === 'all') {
         this.apisToGenerate = apis;
-      } else if (this.props.action == 'select') {
-        this.props.selected.forEach( function(selection) {
+      } else if (this.props.action === 'select') {
+        this.props.selected.forEach(function (selection) {
           this.apisToGenerate[selection.cliName] = selection.spec;
         }, this);
       }
     },
 
-    saveConfig: function() {
+    saveConfig: function () {
       if (this.props.saveConfig) {
         apis[this.props.cliName] = this.apisToGenerate[this.props.cliName];
         this.config.set('apis', apis);
@@ -223,20 +227,20 @@ module.exports = yeoman.Base.extend({
   },
 
   writing: {
-    callSwaggerCodegen : function () {
+    callSwaggerCodegen: function () {
       this.packageName = jhipsterVar.packageName;
       var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.2.0-SNAPSHOT.jar');
-      Object.keys(this.apisToGenerate).forEach( function(cliName) {
+      Object.keys(this.apisToGenerate).forEach(function (cliName) {
         var inputSpec = this.apisToGenerate[cliName].spec;
-        this.apisToGenerate[cliName].cliTypes.forEach( function(cliType) {
-          this.log(chalk.green('Generating ' + cliType + ' end code for ' + cliName + ' (' + inputSpec + ')' ));
+        this.apisToGenerate[cliName].cliTypes.forEach(function (cliType) {
+          this.log(chalk.green('Generating ' + cliType + ' end code for ' + cliName + ' (' + inputSpec + ')'));
           if (cliType === 'front') {
-            var swagger = "";
+            var swagger = '';
             if (isURL(inputSpec)) {
               var res = request('GET', inputSpec);
               swagger = res.getBody('utf-8');
             } else {
-              swagger = fs.readFileSync(inputSpec, 'utf-8');
+              swagger = this.fs.readFileSync(inputSpec, 'utf-8');
             }
             swagger = JSON.parse(swagger);
             var angularjsSourceCode = CodeGen.getAngularCode({ className: _.classify(cliName), swagger: swagger, moduleName: _.camelize(cliName) });
@@ -244,14 +248,13 @@ module.exports = yeoman.Base.extend({
 
             //Determine if jhipster version is 2.x or 3.x
             if (!this.isJHipsterV2) {
-                this.fs.write( jhipsterVar.webappDir + '/app/' + apiScriptFile, angularjsSourceCode);
+              this.fs.write(jhipsterVar.webappDir + '/app/' + apiScriptFile, angularjsSourceCode);
             } else {
-                this.fs.write( jhipsterVar.webappDir + '/scripts/' + apiScriptFile, angularjsSourceCode);
-                jhipsterFunc.addJavaScriptToIndex(apiScriptFile);
+              this.fs.write(jhipsterVar.webappDir + '/scripts/' + apiScriptFile, angularjsSourceCode);
+              jhipsterFunc.addJavaScriptToIndex(apiScriptFile);
             }
             jhipsterFunc.addAngularJsModule(_.camelize(cliName));
-          }
-          else if (cliType === 'back') {
+          } else if (cliType === 'back') {
             this.hasBackEnd = true;
             this.cliPackage = jhipsterVar.packageName + '.client.' + _.underscored(cliName);
             var execLine = 'java -Dmodels -Dapis -DsupportingFiles=ApiKeyRequestInterceptor.java,ClientConfiguration.java -jar ' + jarPath + ' generate' +
@@ -261,8 +264,8 @@ module.exports = yeoman.Base.extend({
               ' --artifact-id ' + _.camelize(cliName) +
               ' --api-package ' + this.cliPackage + '.api' +
               ' --model-package ' + this.cliPackage + '.model' +
-              ' --type-mappings DateTime=ZonedDateTime,Date=LocalDate --import-mappings ZonedDateTime=java.time.ZonedDateTime,LocalDate=java.time.LocalDate' +
-              ' -DbasePackage=' + jhipsterVar.packageName + '.client,configPackage=' + this.cliPackage + ',title=' + _.camelize(cliName);
+              ' -DdateLibrary=java8,basePackage=' + jhipsterVar.packageName + '.client,configPackage=' + this.cliPackage + ',title=' + _.camelize(cliName);
+            this.log(execLine);
             shelljs.exec(execLine);
           }
         }, this);
@@ -270,7 +273,7 @@ module.exports = yeoman.Base.extend({
 
     },
 
-    writeTemplates: function() {
+    writeTemplates: function () {
       if (!this.hasBackEnd) {
         return;
       }
@@ -295,7 +298,7 @@ module.exports = yeoman.Base.extend({
           jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
         }
       }
-      var mainClassFile = jhipsterVar.javaDir + jhipsterVar.mainClassName +'.java';
+      var mainClassFile = jhipsterVar.javaDir + jhipsterVar.mainClassName + '.java';
       var newComponentScan = '@ComponentScan( excludeFilters = {\n' +
         '    @ComponentScan.Filter(' + jhipsterVar.packageName + '.client.ExcludeFromComponentScan.class)\n' +
         '})\n' +
@@ -307,7 +310,7 @@ module.exports = yeoman.Base.extend({
 
   install: function () {
     if (!this.isJHipsterV2) {
-        this.spawnCommand('gulp', ['inject']);
+      this.spawnCommand('gulp', ['inject']);
     }
   }
 
