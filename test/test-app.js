@@ -1,7 +1,7 @@
 'use strict';
 var path = require('path');
 var fse = require('fs-extra');
-var assert = require('yeoman-assert');
+//var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 
 var deps = [
@@ -12,9 +12,9 @@ describe('JHipster generator swagger-cli', function () {
   describe('simple test', function () {
     before(function (done) {
       helpers
-        .run(path.join( __dirname, '../generators/app'))
+        .run(path.join(__dirname, '../generators/app'))
         .inTmpDir(function (dir) {
-          fse.copySync(path.join(__dirname, '../test/templates/default'), dir)
+          fse.copySync(path.join(__dirname, '../test/templates/default'), dir);
         })
         .withOptions({
           testmode: true

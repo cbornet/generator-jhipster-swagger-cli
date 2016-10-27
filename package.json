@@ -30,7 +30,11 @@
     "sync-request": "^3.0.0",
     "swagger-js-codegen": "1.1.8",
     "yeoman-generator": "0.22.4",
-    "semver": "5.1.0"
+    "semver": "5.1.0",
+    "shelljs": "0.7.5",
+    "path": "0.12.7",
+    "swagger-js-codegen": "1.6.9",
+    "underscore.string": "3.3.4"
   },
   "devDependencies": {
     "fs-extra": "0.26.4",
