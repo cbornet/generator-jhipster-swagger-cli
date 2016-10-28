@@ -8,4 +8,3 @@ pwd
 
 npm link generator-jhipster-swagger-cli
 yo jhipster-swagger-cli --regen --force
-ls -al $JHIPSTER_SAMPLES/$JHIPSTER/src/main/java/client

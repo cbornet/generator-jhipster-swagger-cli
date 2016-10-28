@@ -305,19 +305,26 @@ module.exports = yeoman.Base.extend({
       } else {
         if (jhipsterVar.buildTool === 'maven') {
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter', '1.1.1.RELEASE');
-          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-netflix-core', '1.1.5.RELEASE');
+          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-hystrix', '1.1.5.RELEASE');
           jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.16.2');
           jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-slf4j', '8.16.2');
-          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
+          jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-hystrix', '8.16.2');
+          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.3.RELEASE');
         } else if (jhipsterVar.buildTool === 'gradle') {
           jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter', '1.1.1.RELEASE');
-          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-netflix-core', '1.1.5.RELEASE');
+          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-hystrix', '1.1.5.RELEASE');
           jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-core', '8.16.2');
           jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-slf4j', '8.16.2');
-          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
+          jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-hystrix', '8.16.2');
+          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.3.RELEASE');
         }
       }
-      var mainClassFile = jhipsterVar.javaDir + jhipsterVar.mainClassName + '.java';
+      var mainClassFile = jhipsterVar.javaDir;
+      if (this.isJHipsterV2) {
+        mainClassFile += 'Application.java';
+      } else {
+        mainClassFile += jhipsterVar.mainClassName + '.java';
+      }
       var newComponentScan = '@ComponentScan( excludeFilters = {\n' +
         '    @ComponentScan.Filter(' + jhipsterVar.packageName + '.client.ExcludeFromComponentScan.class)\n' +
         '})\n' +

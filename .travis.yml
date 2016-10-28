@@ -18,7 +18,8 @@ env:
     - JHIPSTER_SAMPLES=$JHIPSTER_TRAVIS/samples
     - JHIPSTER_SCRIPTS=$JHIPSTER_TRAVIS/scripts
   matrix:
-    - JHIPSTER=app-371
+    - JHIPSTER=app-3.7.1
+    - JHIPSTER=app-2.27.2
 install:
   - $JHIPSTER_INSTALL/01-install-jhipster-swagger-cli-stack.sh
   - $JHIPSTER_INSTALL/02-checkVersion.sh
