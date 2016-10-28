@@ -22,6 +22,20 @@ function isURL(str) {
 var apis;
 
 module.exports = yeoman.Base.extend({
+  constructor: function () {
+    yeoman.Base.apply(this, arguments);
+
+    // This adds support for a `--[no-]regen` flag
+    this.option('regen', {
+      desc: 'Regenerates all saved clients',
+      type: Boolean,
+      defaults: false
+    });
+    this.hasBackEnd = false;
+    this.hasFrontEnd = false;
+    var jhipsterVersion = this.fs.readJSON('.yo-rc.json')['generator-jhipster'].jhipsterVersion;
+    this.isJHipsterV2 = !jhipsterVersion || semver.lt(jhipsterVersion, '3.0.0');
+  },
 
   initializing: {
     compose: function () {
@@ -42,15 +56,15 @@ module.exports = yeoman.Base.extend({
     },
     readConfig: function () {
       apis = this.config.get('apis') || {};
-      this.hasBackEnd = false;
-      this.hasFrontEnd = false;
-      var jhipsterVersion = this.fs.readJSON('.yo-rc.json')['generator-jhipster'].jhipsterVersion;
-      this.isJHipsterV2 = !jhipsterVersion || semver.lt(jhipsterVersion, '3.0.0');
     }
   },
 
   prompting: {
     askForInputSpec: function () {
+      if (this.options.regen) {
+        return;
+      }
+
       var done = this.async();
       var hasExistingApis = Object.keys(apis).length !== 0;
 
@@ -102,7 +116,7 @@ module.exports = yeoman.Base.extend({
           },
           type: 'list',
           name: 'inputSpec',
-          message: 'Select the doc for which you want to create a client ?',
+          message: 'Select the doc for which you want to create a client',
           choices: availableDocs
         },
         {
@@ -208,10 +222,10 @@ module.exports = yeoman.Base.extend({
   configuring: {
     determineApisToGenerate: function () {
       this.apisToGenerate = {};
-      if (this.props.action === 'new' || this.props.action === undefined) {
-        this.apisToGenerate[this.props.cliName] = { spec: this.props.inputSpec, cliTypes: this.props.cliTypes };
-      } else if (this.props.action === 'all') {
+      if (this.options.regen || this.props.action === 'all') {
         this.apisToGenerate = apis;
+      } else if (this.props.action === 'new' || this.props.action === undefined) {
+        this.apisToGenerate[this.props.cliName] = { spec: this.props.inputSpec, cliTypes: this.props.cliTypes };
       } else if (this.props.action === 'select') {
         this.props.selected.forEach(function (selection) {
           this.apisToGenerate[selection.cliName] = selection.spec;
@@ -220,7 +234,7 @@ module.exports = yeoman.Base.extend({
     },
 
     saveConfig: function () {
-      if (this.props.saveConfig) {
+      if (!this.options.regen && this.props.saveConfig) {
         apis[this.props.cliName] = this.apisToGenerate[this.props.cliName];
         this.config.set('apis', apis);
       }
@@ -283,25 +297,34 @@ module.exports = yeoman.Base.extend({
       if (jhipsterVar.applicationType === 'microservice' || jhipsterVar.applicationType === 'gateway' || jhipsterVar.applicationType === 'uaa') {
         if (jhipsterVar.buildTool === 'maven') {
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign');
+          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2');
         } else if (jhipsterVar.buildTool === 'gradle') {
           jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-feign');
+          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2');
         }
       } else {
         if (jhipsterVar.buildTool === 'maven') {
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter', '1.1.1.RELEASE');
-          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-netflix-core', '1.1.5.RELEASE');
+          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-hystrix', '1.1.5.RELEASE');
           jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-core', '8.16.2');
           jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-slf4j', '8.16.2');
-          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
+          jhipsterFunc.addMavenDependency('com.netflix.feign', 'feign-hystrix', '8.16.2');
+          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.3.RELEASE');
         } else if (jhipsterVar.buildTool === 'gradle') {
           jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter', '1.1.1.RELEASE');
-          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-netflix-core', '1.1.5.RELEASE');
+          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-hystrix', '1.1.5.RELEASE');
           jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-core', '8.16.2');
           jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-slf4j', '8.16.2');
-          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.0.RELEASE');
+          jhipsterFunc.addGradleDependency('compile', 'com.netflix.feign', 'feign-hystrix', '8.16.2');
+          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2', '1.1.3.RELEASE');
         }
       }
-      var mainClassFile = jhipsterVar.javaDir + jhipsterVar.mainClassName + '.java';
+      var mainClassFile = jhipsterVar.javaDir;
+      if (this.isJHipsterV2) {
+        mainClassFile += 'Application.java';
+      } else {
+        mainClassFile += jhipsterVar.mainClassName + '.java';
+      }
       var newComponentScan = '@ComponentScan( excludeFilters = {\n' +
         '    @ComponentScan.Filter(' + jhipsterVar.packageName + '.client.ExcludeFromComponentScan.class)\n' +
         '})\n' +

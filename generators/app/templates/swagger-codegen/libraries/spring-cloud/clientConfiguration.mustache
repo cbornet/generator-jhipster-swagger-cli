@@ -23,11 +23,13 @@ public class ClientConfiguration {
 
 {{#authMethods}}
     {{#isBasic}}
-  @Value("${ {{{title}}}.security.{{{name}}}.username:}")
-  private String {{{name}}}Username;
+        {{=<% %>=}}
+  @Value("${<%title%>.security.<%name%>.username:}")
+  private String <%name%>Username;
 
-  @Value("${ {{{title}}}.security.{{{name}}}.password:}")
-  private String {{{name}}}Password;
+  @Value("${<%title%>.security.<%name%>.password:}")
+  private String <%name%>Password;
+        <%={{ }}=%>
 
   @Bean
   @ConditionalOnProperty(name = "{{{title}}}.security.{{{name}}}.username")
