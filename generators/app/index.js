@@ -244,7 +244,7 @@ module.exports = yeoman.Base.extend({
   writing: {
     callSwaggerCodegen: function () {
       this.packageName = jhipsterVar.packageName;
-      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.2.1.jar');
+      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.2.2-SNAPSHOT.jar');
       Object.keys(this.apisToGenerate).forEach(function (cliName) {
         var inputSpec = this.apisToGenerate[cliName].spec;
         this.apisToGenerate[cliName].cliTypes.forEach(function (cliType) {
