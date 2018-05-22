@@ -33,8 +33,8 @@ module.exports = yeoman.Base.extend({
     });
     this.hasBackEnd = false;
     this.hasFrontEnd = false;
-    var jhipsterVersion = this.fs.readJSON('.yo-rc.json')['generator-jhipster'].jhipsterVersion;
-    this.isJHipsterV2 = !jhipsterVersion || semver.lt(jhipsterVersion, '3.0.0');
+    this.jhipsterVersion = this.fs.readJSON('.yo-rc.json')['generator-jhipster'].jhipsterVersion;
+    this.isJHipsterV2 = !this.jhipsterVersion || semver.lt(this.jhipsterVersion, '3.0.0');
   },
 
   initializing: {
@@ -67,6 +67,10 @@ module.exports = yeoman.Base.extend({
 
       var done = this.async();
       var hasExistingApis = Object.keys(apis).length !== 0;
+      var cliTypesChoices = [{ name: 'back-end client', value: 'back' }];
+      if (!jhipsterVar.clientFramework || jhipsterVar.clientFramework === 'angular1') {
+        cliTypesChoices.push({ name: 'front-end client', value: 'front' });
+      }
 
       try {
         //Check if there is a registry running
@@ -179,10 +183,7 @@ module.exports = yeoman.Base.extend({
           message: 'Select which type of API client to generate',
           default: ['front'],
           store: true,
-          choices: [
-            { name: 'front-end client', value: 'front' },
-            { name: 'back-end client', value: 'back' }
-          ]
+          choices: cliTypesChoices
         },
         {
           when: function (response) {
@@ -244,7 +245,7 @@ module.exports = yeoman.Base.extend({
   writing: {
     callSwaggerCodegen: function () {
       this.packageName = jhipsterVar.packageName;
-      var jarPath = path.resolve(__dirname, '../jar/swagger-codegen-cli-2.2.2-SNAPSHOT.jar');
+      var jarPath = path.resolve(__dirname, '../jar/openapi-generator-cli-3.0.0-SNAPSHOT.jar');
       Object.keys(this.apisToGenerate).forEach(function (cliName) {
         var inputSpec = this.apisToGenerate[cliName].spec;
         this.apisToGenerate[cliName].cliTypes.forEach(function (cliType) {
@@ -294,7 +295,7 @@ module.exports = yeoman.Base.extend({
       if (!this.hasBackEnd) {
         return;
       }
-      if (jhipsterVar.applicationType === 'microservice' || jhipsterVar.applicationType === 'gateway' || jhipsterVar.applicationType === 'uaa') {
+      if (semver.gte(this.jhipsterVersion, '4.11.0') || jhipsterVar.applicationType === 'microservice' || jhipsterVar.applicationType === 'gateway' || jhipsterVar.applicationType === 'uaa') {
         if (jhipsterVar.buildTool === 'maven') {
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign');
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2');
