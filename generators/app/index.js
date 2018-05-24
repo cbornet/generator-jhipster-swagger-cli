@@ -72,82 +72,86 @@ module.exports = yeoman.Base.extend({
         cliTypesChoices.push({ name: 'front-end client', value: 'front' });
       }
 
+      var actionList;
       try {
-        //Check if there is a registry running
-        var res = request('GET', 'http://localhost:8761/health');
-        if (JSON.parse(res.getBody()).status === 'UP') {
-
-          this.log(chalk.yellow('JHipster registry') + ' detected on localhost:8761.');
-
-          var swaggerResources = request('GET', 'http://localhost:8080/swagger-resources', {
-            //This header is needed to use the custom /swagger-resources controller
-            // and not the default one that has only the gateway's swagger resource
-            headers: { Accept: 'application/json, text/javascript;' }
+        var swaggerResources = request('GET', 'http://localhost:8080/swagger-resources', {
+          // This header is needed to use the custom /swagger-resources controller
+          // and not the default one that has only the gateway's swagger resource
+          headers: { Accept: 'application/json, text/javascript;' }
+        });
+        var availableDocs = [];
+        JSON.parse(swaggerResources.getBody()).forEach(function (swaggerResource) {
+          availableDocs.push({
+            value: {url: 'http://localhost:8080' + swaggerResource.location, name: swaggerResource.name},
+            name: swaggerResource.name + ' (' + swaggerResource.location + ')'
           });
-          var availableDocs = [];
-          JSON.parse(swaggerResources.getBody()).forEach(function (swaggerResource) {
-            availableDocs.push({
-              value: 'http://localhost:8080' + swaggerResource.location,
-              name: swaggerResource.name + ' (' + swaggerResource.location + ')'
-            });
-          });
+        });
 
-          this.log('The following swagger-docs have been found :');
-          availableDocs.forEach(function (doc) {
-            this.log('* ' + chalk.green(doc.name) + ' : ' + doc.value);
-          }.bind(this));
+        this.log('The following swagger-docs have been found at http://localhost:8080');
+        availableDocs.forEach(function (doc) {
+          this.log('* ' + chalk.green(doc.name) + ' : ' + doc.value.name);
+        }.bind(this));
+        this.log('');
 
-          //If all the previous requests didn't fail, we set the flag
-          var isMicroserviceConfig = true;
-        }
+        actionList = [
+          {
+            value: 'new-detected',
+            name: 'Generate a new API client from one of these swagger-docs'
+          },
+          {
+            value: 'new',
+            name: 'Generate a new API client from another swagger-doc'
+          }
+        ];
+
       } catch (err) {
-        isMicroserviceConfig = false;
+        // No live doc found on port 8080
+        actionList = [
+          {
+            value: 'new',
+            name: 'Generate a new API client'
+          }
+        ];
       }
+
+      if (hasExistingApis) {
+        actionList.push({value: 'all', name: 'Generate all stored API clients'});
+        actionList.push({value: 'select', name: 'Select stored API clients to generate'});
+      }
+
+      var newClient = actionList.length === 1;
 
       var prompts = [
         {
           when: function () {
-            return isMicroserviceConfig;
-          },
-          type: 'confirm',
-          name: 'useRegistry',
-          message: 'Do you want to use one of these swagger-docs ?',
-          default: true
-        },
-        {
-          when: function (response) {
-            return response.useRegistry;
-          },
-          type: 'list',
-          name: 'inputSpec',
-          message: 'Select the doc for which you want to create a client',
-          choices: availableDocs
-        },
-        {
-          when: function () {
-            return hasExistingApis;
+            return !newClient;
           },
           type: 'list',
           name: 'action',
           message: 'What do you want to do ?',
-          choices: [
-            {
-              value: 'new',
-              name: 'Generate a new API client'
-            },
-            {
-              value: 'all',
-              name: 'Generate all stored API clients'
-            },
-            {
-              value: 'select',
-              name: 'Select stored API clients to generate'
-            }
-          ]
+          choices: actionList
         },
         {
           when: function (response) {
-            return (response.action === 'new' || !hasExistingApis) && response.inputSpec === undefined;
+            return response.action === 'new-detected';
+          },
+          type: 'list',
+          name: 'availableDoc',
+          message: 'Select the doc for which you want to create a client',
+          choices: availableDocs
+        },
+        {
+          when: function (response) {
+            return response.action === 'new-detected' && jhipsterVar.jhipsterConfig.serviceDiscoveryType === 'eureka';
+          },
+          type: 'confirm',
+          name: 'useServiceDiscovery',
+          message: 'Do you want to use Eureka service discovery ?',
+          default: true
+        },
+        {
+          when: function (response) {
+            return response.action === 'new' || newClient;
           },
           type: 'input',
           name: 'inputSpec',
@@ -157,7 +161,7 @@ module.exports = yeoman.Base.extend({
         },
         {
           when: function (response) {
-            return response.action === 'new' || !hasExistingApis;
+            return (['new', 'new-detected'].includes(response.action) || newClient) && !response.useServiceDiscovery;
           },
           type: 'input',
           name: 'cliName',
@@ -176,7 +180,7 @@ module.exports = yeoman.Base.extend({
         },
         {
           when: function (response) {
-            return response.action === 'new' || !hasExistingApis;
+            return ['new', 'new-detected'].includes(response.action) || newClient;
           },
           type: 'checkbox',
           name: 'cliTypes',
@@ -187,7 +191,7 @@ module.exports = yeoman.Base.extend({
         },
         {
           when: function (response) {
-            return response.action === 'new' || !hasExistingApis;
+            return ['new', 'new-detected'].includes(response.action) || newClient;
           },
           type: 'confirm',
           name: 'saveConfig',
@@ -212,8 +216,11 @@ module.exports = yeoman.Base.extend({
       ];
 
       this.prompt(prompts, function (props) {
+        if (props.availableDoc !== undefined) {
+          props.inputSpec = props.availableDoc.url;
+          props.cliName = props.availableDoc.name;
+        }
         this.props = props;
-
         done();
       }.bind(this));
     }
@@ -225,8 +232,8 @@ module.exports = yeoman.Base.extend({
       this.apisToGenerate = {};
       if (this.options.regen || this.props.action === 'all') {
         this.apisToGenerate = apis;
-      } else if (this.props.action === 'new' || this.props.action === undefined) {
-        this.apisToGenerate[this.props.cliName] = { spec: this.props.inputSpec, cliTypes: this.props.cliTypes };
+      } else if (['new', 'new-detected'].includes(this.props.action) || this.props.action === undefined) {
+        this.apisToGenerate[this.props.cliName] = { spec: this.props.inputSpec, cliTypes: this.props.cliTypes, useServiceDiscovery: this.props.useServiceDiscovery };
       } else if (this.props.action === 'select') {
         this.props.selected.forEach(function (selection) {
           this.apisToGenerate[selection.cliName] = selection.spec;
@@ -283,6 +290,9 @@ module.exports = yeoman.Base.extend({
               ' --model-package ' + this.cliPackage + '.model' +
               ' --type-mappings DateTime=OffsetDateTime,Date=LocalDate --import-mappings OffsetDateTime=java.time.OffsetDateTime,LocalDate=java.time.LocalDate' +
               ' -DdateLibrary=custom,basePackage=' + jhipsterVar.packageName + '.client,configPackage=' + this.cliPackage + ',title=' + _.camelize(cliName);
+            if (this.apisToGenerate[cliName].useServiceDiscovery) {
+              execLine += ' --additional-properties ribbon=true';
+            }
             this.log(execLine);
             shelljs.exec(execLine);
           }
