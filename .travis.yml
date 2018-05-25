@@ -20,6 +20,9 @@ env:
   matrix:
     - JHIPSTER=app-3.7.1
     - JHIPSTER=app-2.27.2
+before_install:
+  - docker run -d --name petstore -p 8002:8080 swaggerapi/petstore
+  - sleep 10
 install:
   - $JHIPSTER_INSTALL/01-install-jhipster-swagger-cli-stack.sh
   - $JHIPSTER_INSTALL/02-checkVersion.sh

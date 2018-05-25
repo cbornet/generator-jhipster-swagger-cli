@@ -305,7 +305,7 @@ module.exports = yeoman.Base.extend({
       if (!this.hasBackEnd) {
         return;
       }
-      if (semver.gte(this.jhipsterVersion, '4.11.0') || jhipsterVar.applicationType === 'microservice' || jhipsterVar.applicationType === 'gateway' || jhipsterVar.applicationType === 'uaa') {
+      if ((this.jhipsterVersion && semver.gte(this.jhipsterVersion, '4.11.0')) || ['microservice', 'uaa', 'gateway'].includes(jhipsterVar.applicationType)) {
         if (jhipsterVar.buildTool === 'maven') {
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign');
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2');
