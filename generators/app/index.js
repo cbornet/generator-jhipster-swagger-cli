@@ -307,10 +307,24 @@ module.exports = yeoman.Base.extend({
       }
       if ((this.jhipsterVersion && semver.gte(this.jhipsterVersion, '4.11.0')) || ['microservice', 'uaa', 'gateway'].includes(jhipsterVar.applicationType)) {
         if (jhipsterVar.buildTool === 'maven') {
-          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign');
+          var exclusions;
+          if (jhipsterVar.authenticationType === 'session') {
+            exclusions = '            <exclusions>' + '\n' +
+                        '                <exclusion>' + '\n' +
+                        '                    <groupId>org.springframework.cloud</groupId>' + '\n' +
+                        '                    <artifactId>spring-cloud-starter-ribbon</artifactId>' + '\n' +
+                        '                </exclusion>' + '\n' +
+                        '            </exclusions>';
+          }
+          jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-feign', null, exclusions);
           jhipsterFunc.addMavenDependency('org.springframework.cloud', 'spring-cloud-starter-oauth2');
         } else if (jhipsterVar.buildTool === 'gradle') {
-          jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-feign');
+          if (jhipsterVar.authenticationType === 'session') {
+            var content = "compile 'org.springframework.cloud:spring-cloud-starter-feign', { exclude group: 'org.springframework.cloud', module: 'spring-cloud-starter-ribbon' }";
+            jhipsterFunc.rewriteFile('./build.gradle', 'jhipster-needle-gradle-dependency', content);
+          } else {
+            jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-feign');
+          }
           jhipsterFunc.addGradleDependency('compile', 'org.springframework.cloud', 'spring-cloud-starter-oauth2');
         }
       } else {
