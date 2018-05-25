@@ -30,7 +30,7 @@
   "generator-jhipster-swagger-cli": {
     "apis": {
       "petstore": {
-        "spec": "http://localhost:8002/v2/swagger.json",
+        "spec": "http://localhost:8002/api/swagger.json",
         "cliTypes": [
           "back"
         ]
