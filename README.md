@@ -39,9 +39,9 @@ You have the possibility to store a client configuration for future regeneration
 ## Use the generated back-end Spring-Cloud FeignClient code
 ### Client configuration
 You can configure the generated FeignClients directly from the application.yml.
-RequestInterceptor beans are generated from the swagger securityDefinitions and are only activated if relevant properties are set. If the swagger spec doesn't contain the securityDefinitions, then you will need to configure the clients by yourself (see [spring-cloud doc](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) for details.)
+`RequestInterceptor` beans are generated from the swagger `securityDefinitions` and are only activated if relevant properties are set. If the swagger spec doesn't contain the securityDefinitions, then you will need to configure the clients by yourself (see [spring-cloud doc](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) for details.)
 #### Configuring basic auth
-The basic auth RequestInterceptor is activated if ```<clientName>.security.<securityName>.username``` is set.
+The basic auth RequestInterceptor is activated if `<clientName>.security.<securityName>.username` is set.
 ```yaml
 petstore:
     security:
@@ -50,7 +50,7 @@ petstore:
             password: admin
 ```
 #### Configuring API key auth
-The API key RequestInterceptor is activated if ```<clientName>.security.<securityName>.key``` is set.
+The API key RequestInterceptor is activated if `<clientName>.security.<securityName>.key` is set.
 ```yaml
 petstore:
     security:
@@ -58,7 +58,7 @@ petstore:
             key: 12345
 ```
 #### Configuring OAuth2
-The OAuth2 RequestInterceptor is activated if ```<clientName>.security.<securityName>.key``` is set. For details on configuring OAuth2, see the [spring-security-oauth2 doc](http://projects.spring.io/spring-security-oauth/docs/oauth2.html#protected-resource-configuration).
+The OAuth2 RequestInterceptor is activated if `<clientName>.security.<securityName>.key` is set. For details on configuring OAuth2, see the [spring-security-oauth2 doc](http://projects.spring.io/spring-security-oauth/docs/oauth2.html#protected-resource-configuration).
 ```yaml
 petstore:
     security:
@@ -72,14 +72,14 @@ petstore:
             - write
 ```
 #### Configuring the remote URL
-The remote URL will default to the one from the swagger spec but can be changed with the ```<clientName>.url``` property.
+The remote URL will default to the one from the swagger spec but can be changed with the `<clientName>.url` property.
 ```yaml
 petstore:
     url: http://petstore-uat.swagger.io/v2
 ```
 #### Use Ribbon (w/wo Eureka)
 You need to add spring-cloud-starter-ribbon to your pom.xml if needed. Note that it seems to cause an issue with form-login on monoliths so it is not done by this module.
-Then set ```<cliName>.url``` to blank.
+Then set `<cliName>.url` to blank.
 ```yaml
 petstore:
     url:

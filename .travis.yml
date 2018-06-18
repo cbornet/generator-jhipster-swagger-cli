@@ -18,10 +18,9 @@ env:
     - JHIPSTER_SAMPLES=$JHIPSTER_TRAVIS/samples
     - JHIPSTER_SCRIPTS=$JHIPSTER_TRAVIS/scripts
   matrix:
-    - JHIPSTER=app-3.7.1
-    - JHIPSTER=app-2.27.2
+    - JHIPSTER=app-5.0.0
 before_install:
-  - docker run -d --name petstore -p 8002:8080 swaggerapi/petstore
+  - docker run -d --name petstore -e DISABLE_API_KEY=1 -e DISABLE_OAUTH=1 -p 80:8080 openapitools/openapi-petstore
   - sleep 10
 install:
   - $JHIPSTER_INSTALL/01-install-jhipster-swagger-cli-stack.sh
