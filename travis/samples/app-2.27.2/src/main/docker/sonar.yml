@@ -1,6 +1,0 @@
-jhipsterapp-sonar:
-  container_name: jhipsterapp-sonar
-  image: sonarqube:4.5.6
-  ports:
-    - "9000:9000"
-    - "9092:9092"
