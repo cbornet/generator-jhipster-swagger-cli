@@ -9,7 +9,9 @@ This is a [JHipster](http://jhipster.github.io/) module, that is meant to be use
 This module generates client code in your JHipster app from a swagger definition.
 It generates back-end [Spring-Cloud FeignClients](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) clients.
 
-Note that the generated FeignClient can be used in both Monolithic and Micro-service applications.
+Notes :
+* the generated FeignClient can be used in both Monolithic and Micro-service applications.
+* this module works for JHipster v5+ apps. For older JHipster version, use version 2.x of this module (branch [v2.x-JHipster2-3-4](https://github.com/cbornet/generator-jhipster-swagger-cli/tree/v2.x-JHipster2-3-4))
 
 # Prerequisites
 
