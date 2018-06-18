@@ -1,17 +1,19 @@
 # generator-jhipster-swagger-cli
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> JHipster module to generate swagger client code from a swagger definition
+> JHipster module to generate client code from an OpenAPI/Swagger definition
 
 # Introduction
 
 This is a [JHipster](http://jhipster.github.io/) module, that is meant to be used in a JHipster application.
 
-This module generates client code in your JHipster app from a swagger definition.
-It generates back-end [Spring-Cloud FeignClients](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) clients.
+This module generates client code using [Spring-Cloud FeignClients](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) in your JHipster app from an OpenAPI/Swagger definition.
 
-Notes :
-* the generated FeignClient can be used in both Monolithic and Micro-service applications.
-* this module works for JHipster v5+ apps. For older JHipster version, use version 2.x of this module (branch [v2.x-JHipster2-3-4](https://github.com/cbornet/generator-jhipster-swagger-cli/tree/v2.x-JHipster2-3-4))
+The generated FeignClient can be used in both Monolithic and Micro-service applications.
+
+This module works for JHipster v5+ apps.
+For older JHipster version, use version 2.x of this module (branch [v2.x-JHipster2-3-4](https://github.com/cbornet/generator-jhipster-swagger-cli/tree/v2.x-JHipster2-3-4))
+
+This module works with both Swagger v2 and OpenAPI v3 definitions.
 
 # Prerequisites
 
@@ -46,8 +48,8 @@ If you do so, next time you launch the module, you will have the choice to gener
 ### Client configuration
 
 You can configure the generated FeignClients directly from the application.yml.
-`RequestInterceptor` beans are generated from the swagger `securityDefinitions` and are only activated if relevant properties are set.
-If the swagger spec doesn't contain the securityDefinitions, then you will need to configure the clients by yourself (see [spring-cloud doc](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) for details.)
+`RequestInterceptor` beans are generated from the OpenAPI `securitySchemes` and are only activated if relevant properties are set.
+If the OpenAPI spec doesn't contain the `securitySchemes`, then you will need to configure the clients by yourself (see [spring-cloud doc](http://projects.spring.io/spring-cloud/spring-cloud.html#spring-cloud-feign) for details.)
 
 #### Configuring basic auth
 
@@ -89,7 +91,7 @@ petstore:
 
 #### Configuring the remote URL
 
-The remote URL will default to the one from the swagger spec but can be changed with the `<clientName>.url` property.
+The remote URL will default to the one from the OpenAPI spec but can be changed with the `<clientName>.url` property.
 ```yaml
 petstore:
     url: http://petstore-uat.swagger.io/v2
