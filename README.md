@@ -36,7 +36,8 @@ Run:
 yo jhipster-swagger-cli
 ```
 then answer the questions.
-You have the possibility to store a client configuration for future regeneration (eg. if there is an API update). If you do so, next time you launch the module, you will have the choice to generate a new client or to reuse one or several stored configurations.
+You have the possibility to store a client configuration for future regeneration (eg. if there is an API update).
+If you do so, next time you launch the module, you will have the choice to generate a new client or to reuse one or several stored configurations.
 
 ## Use the generated back-end Spring-Cloud FeignClient code
 
