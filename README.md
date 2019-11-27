@@ -1,3 +1,5 @@
+# Deprecation warning: from JHipster 6.3.0, this module has been integrated in the main generator and shall not be used anymore.
+
 # generator-jhipster-swagger-cli
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 > JHipster module to generate client code from an OpenAPI/Swagger definition
